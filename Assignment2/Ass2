@@ -1,0 +1,68 @@
+http://www.codeskulptor.org/#user40_7CSKPH0dho_8.py
+"""
+Implementation of assignment 2 Algorithmic thinking
+"""
+import poc_queue as PQ   
+def bfs_visited(ugraph, start_node):
+    """
+    Implements visited bfs algorithm 
+    Return set of visited nodes
+    """
+    if ugraph.get(start_node,0) == 0:
+        return set([])
+    bfs_que = PQ.Queue()
+    bfs_que.enqueue(start_node)   
+    visited = set([start_node])
+    while len(bfs_que) > 0:
+        node = bfs_que.dequeue()
+        for neigh in ugraph[node]:
+            if neigh not in visited:
+                visited.add(neigh)
+                bfs_que.enqueue(neigh)
+
+    return visited
+
+def cc_visited(ugraph):
+    """
+    cc_visited implemented
+    """
+    rem_nodes = set(ugraph.keys())
+    conn_comp = []
+    while len(rem_nodes) > 0:
+        node = rem_nodes.pop()
+        visited = bfs_visited(ugraph,node)
+        conn_comp.append(visited)
+        rem_nodes = rem_nodes.difference(visited)
+    return conn_comp
+def largest_cc_size(ugraph):
+    """
+    Computes largest cc
+    """
+    conn_comp = cc_visited(ugraph)
+    larg_cc_size = 0
+    for comp in conn_comp:
+        size = len(comp)
+        if larg_cc_size < size:
+            larg_cc_size = size    
+    return larg_cc_size
+
+def compute_resilience(ugraph, attack_order):
+    """
+    Return size of graph largest cc while attack propagation
+    """
+    res = [largest_cc_size(ugraph)]    
+    for node in attack_order:
+        del ugraph[node]
+        for key in ugraph.keys():
+            neigh = ugraph.get(key)
+            neigh = neigh.difference(set([node]))
+            ugraph[key] = neigh
+        res.append(largest_cc_size(ugraph))
+    return res
+
+#ugraph = make_complete_graph(5)
+#print compute_resilience(ugraph, [0,1,2])
+            
+            
+            
+    
